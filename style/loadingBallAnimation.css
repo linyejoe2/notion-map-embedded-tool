@@ -1,0 +1,45 @@
+#ballBox1 {
+  top: -80px;
+  position: relative;
+  display: inline-block;
+  animation: move 6s infinite;
+}
+
+#ballBox2 {
+  display: inline-block;
+  animation: bounce .5s alternate infinite cubic-bezier(.5, 0.05, 1, .5);
+}
+
+#ball {
+  animation: rotate 1s infinite cubic-bezier(.73, .25, .36, .76);
+}
+
+@keyframes move {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(200px, 0, 0);
+  }
+}
+
+@keyframes bounce {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 50px, 0);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

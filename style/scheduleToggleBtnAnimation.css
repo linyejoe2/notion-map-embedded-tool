@@ -1,0 +1,191 @@
+.schedule-toggle {
+  transition: width 1s, height 1s;
+  position: relative;
+  display: block;
+  padding-top: 16px;
+  padding-left: 8px;
+  cursor: default;
+}
+
+.schedule-toggle-list {
+  padding-top: 20px;
+}
+
+.toggle-point {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 40px;
+  width: 40px;
+  z-index: 70;
+  cursor: pointer;
+}
+
+.schedule-toggle .form-check-label {
+  line-height: 100%;
+  vertical-align: bottom;
+}
+
+.schedule-toggle .form-check-input:checked {
+  background-color: #aaa;
+  border-color: #aaa;
+}
+
+.schedule-toggle.active {
+  width: 100px;
+  height: 120px;
+}
+
+.schedule-toggle-btn {
+  width: 16px;
+  height: 1px;
+  border-radius: 3px;
+  background-color: #333;
+  position: relative;
+  transition: background-color .01s .5s;
+}
+
+.schedule-toggle.active .schedule-toggle-btn {
+  background-color: transparent;
+  /* transition: background-color .01s .2s; */
+}
+
+.schedule-toggle-btn::before {
+  content: "";
+  width: 100%;
+  height: 1px;
+  border-radius: 3px;
+  background-color: #333;
+  position: absolute;
+  top: -5px;
+  left: 0px;
+}
+
+.schedule-toggle.close .schedule-toggle-btn::before {
+  animation: backturn1 .4s .2s ease-in-out reverse both,
+    backmoveDown .3s .55s ease-in reverse both;
+}
+
+.schedule-toggle.active .schedule-toggle-btn::before {
+  animation: moveDown .3s ease-in forwards,
+    turn1 .4s .2s ease-in forwards;
+}
+
+.schedule-toggle-btn::after {
+  content: "";
+  width: 100%;
+  height: 1px;
+  border-radius: 3px;
+  background-color: #333;
+  position: absolute;
+  bottom: -5px;
+  left: 0px;
+}
+
+.schedule-toggle.close .schedule-toggle-btn::after {
+  animation: backturn2 .45s .1s ease-in reverse both,
+    backmoveUp .3s .55s ease-in reverse both;
+}
+
+.schedule-toggle.active .schedule-toggle-btn::after {
+  animation: moveUp .3s ease-in forwards,
+    turn2 .4s .2s ease-in forwards;
+}
+
+
+
+@keyframes moveDown {
+  0% {
+    top: -5px;
+  }
+
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes backmoveDown {
+  0% {
+    top: -5px;
+  }
+
+  100% {
+    top: 0;
+  }
+}
+
+@keyframes moveUp {
+  0% {
+    bottom: -5px;
+  }
+
+  100% {
+    bottom: 0;
+  }
+}
+
+@keyframes backmoveUp {
+  0% {
+    bottom: -5px;
+  }
+
+  100% {
+    bottom: 0;
+  }
+}
+
+@keyframes turn1 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(50deg);
+  }
+
+  100% {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes backturn1 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(50deg);
+  }
+
+  100% {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes turn2 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(145deg);
+  }
+
+  100% {
+    transform: rotate(135deg);
+  }
+}
+
+@keyframes backturn2 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(145deg);
+  }
+
+  100% {
+    transform: rotate(135deg);
+  }
+}
