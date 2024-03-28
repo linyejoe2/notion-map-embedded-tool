@@ -1,0 +1,20 @@
+{
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.134",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/node": "^20.11.20",
+    "@types/uuid": "^9.0.8",
+    "nodemon": "^3.1.0",
+    "serverless-offline": "^13.3.3",
+    "serverless-plugin-typescript": "^2.1.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1569.0",
+    "uuid": "^9.0.1"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"sls offline start\"",
+    "deploy": "serverless deploy"
+  }
+}

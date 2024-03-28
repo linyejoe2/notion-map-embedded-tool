@@ -1,0 +1,40 @@
+service: notion-map-embedded-tool-server
+frameworkVersion: "3"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-northeast-2
+  profile: developer
+
+functions:
+  test:
+    handler: src/handler.test
+    events:
+      - httpApi:
+          path: /notion-map/test
+          method: get
+  update:
+    handler: src/handler.update
+    events:
+      - httpApi:
+          path: /notion-map/update
+          method: get
+
+resources:
+  Resources:
+    FlashCardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: notion_map_point
+        AttributeDefinitions:
+          - AttributeName: _id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: _id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
