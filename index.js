@@ -26,7 +26,7 @@ require([
     container: "viewDiv",
     map: map,
     center: [139.7452043, 35.6870601],
-    zoom: 7,
+    zoom: 10,
     popup: {
       dockEnabled: true,
       collapseEnabled: false,
@@ -158,29 +158,45 @@ require([
   map.add(featureLayer);
 
   // 呼叫 api 取得籃球場資料，並將資料轉成 Graphics 顯示在地圖上
-  fetch("https://script.google.com/macros/s/AKfycbz8dfD4bGT6NYSls3LOfsr6Gz3b3Fm3iJUyI8o_Z-axrSsQtyFhXASHoz3GZU0XkklgPw/exec")
+  fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
+    // fetch("http://localhost:3000/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
+    method: "POST",
+    // credentials: 'include',
+    headers: {
+      authorization: "Bearer secret_o0cLkvqHibN73ywmEdkHaNMfbmiMd0HvYuSwn9UzrWH",
+      "notion-version": "2022-06-28",
+      "content-type": "application/json",
+    },
+    // body: {
+    //   headers: {
+    //     Authorization: "Bearer secret_o0cLkvqHibN73ywmEdkHaNMfbmiMd0HvYuSwn9UzrWH",
+    //     "Notion-Version": "2022-06-28",
+    //     "Content-Type": "application/json",
+    //   }
+    // }
+  })
     .then(response => response.json())
     .then(data => {
       let graphArr = [];
-      data.locations.forEach(function (feature) {
+      data.results.forEach(function (feature) {
         var graphic = new Graphic({
           geometry: {
             type: "point",
-            longitude: feature.lon,
-            latitude: feature.lat
+            longitude: feature.properties.Longitude.rich_text.length > 0 ? feature.properties.Longitude.rich_text[0].text.content : 0,
+            latitude: feature.properties.Latitude.rich_text.length > 0 ? feature.properties.Latitude.rich_text[0].text.content : 0
           },
           attributes: {
-            "name": feature.name,
-            "address": feature.address,
-            "team": feature.team,
-            "league": feature.league,
-            "rentState": feature.rent_state,
-            "tel": feature.tel,
-            "photo1": feature.photo1,
-            "rentMemo": feature.rent_memo,
-            "rentUrl": feature.rent_url
+            "name": feature.properties["名稱"].title[0]?.text.content,
+            "address": feature.properties["位置"].rich_text[0]?.text.content,
+            "team": feature.properties["備註"].rich_text[0]?.text.content,
+            "league": feature.properties["價格"].rich_text[0]?.text.content,
+            // "rentState": feature.properties["地區"].rich_text[0].text.content,
+            // "tel": feature.properties["提前預約"].rich_text[0].text.content,
+            "photo1": feature.properties["營業時間"].rich_text[0]?.text.content,
+            // "rentMemo": feature.properties["類型"].rich_text[0].text.content,
+            "rentUrl": feature.properties["網站"].url
           },
-
+          // 位置.rich_text[0].text.content
         });
         graphArr.push(graphic);
       });
@@ -215,7 +231,7 @@ require([
     console.log(event)
     view.goTo({
       target: event.result.feature,
-      zoom: 15
+      zoom: 20
     }, { duration: 2000 });
   })
 
