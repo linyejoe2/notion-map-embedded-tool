@@ -10,6 +10,24 @@ canvas {
   outline: 0;
 }
 
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background-color: #24a0cd;
+  /* 底色 */
+}
+
+.tag span {
+  font-weight: bold;
+  /* 可根據需求調整文字樣式 */
+}
+
+.esri-popup__header-title {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+}
+
 #viewDiv {
   padding: 0 !important;
   margin: 0 !important;

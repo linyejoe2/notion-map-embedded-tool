@@ -25,8 +25,10 @@ require([
   view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [139.7452043, 35.6870601],
-    zoom: 10,
+    center: [139.77521, 35.68788],
+    // center: [139.7452043, 35.6870601],
+    // 35.68788740765644, 139.77521531613738
+    zoom: 12,
     popup: {
       dockEnabled: true,
       collapseEnabled: false,
@@ -64,14 +66,20 @@ require([
     id: "bBallLayer",
     fields: [{ name: "ObjectID", alias: "ObjectID", type: "oid" },
     { name: "name", alias: "名稱", type: "string" },
-    { name: "address", alias: "地址", type: "string" },
-    { name: "team", alias: "主場隊伍", type: "string" },
-    { name: "league", alias: "所屬聯盟", type: "string" },
-    { name: "rentState", alias: "是否對外開放", type: "string" },
-    { name: "rentMemo", alias: "租借規則", type: "string" },
-    { name: "rentUrl", alias: "場館官網", type: "string" },
-    { name: "tel", alias: "聯絡該場館", type: "string" },
-    { name: "photo1", alias: "圖片", type: "string" }],
+    { name: "address", alias: "位置", type: "string" },
+    { name: "team", alias: "備註", type: "string" },
+    { name: "league", alias: "價格", type: "string" },
+    // { name: "rentState", alias: "是否對外開放", type: "string" },
+    // { name: "rentMemo", alias: "租借規則", type: "string" },
+    { name: "rentUrl", alias: "網站", type: "string" },
+    { name: "color", alias: "標誌顏色", type: "string" },
+    // { name: "tel", alias: "聯絡該場館", type: "string" },
+    { name: "time", alias: "營業時間", type: "string" },
+    { name: "photo1", alias: "照片", type: "string" },
+    { name: "type", alias: "類型", type: "string" },
+    { name: "area", alias: "地區", type: "string" },
+    { name: "reserve", alias: "提前預約", type: "string" },
+    ],
     objectIdField: "ObjectID",
     geometryType: "point",
     spatialReference: {
@@ -80,7 +88,7 @@ require([
     source: [], // 空的圖層
     renderer: {
       type: "unique-value",
-      field: "league",
+      field: "color",
       orderByClassesEnabled: true,
       defaultSymbol: {
         // type: "picture-marker",
@@ -90,32 +98,33 @@ require([
         type: "simple-marker",
         style: "circle",
         color: "#32B3EB",
+        // color: "red",
         outline: {
           color: "#65D0FE",
           width: "1px"
         },
         size: "16px"
       },
-      uniqueValueInfos: [
-        {
-          value: "T1 聯盟",
-          symbol: {
-            type: "picture-marker",
-            url: "img/team/t1league.svg",
-            width: "50px",
-            height: "50px"
-          }
-        },
-        {
-          value: "P. LEAGUE+",
-          symbol: {
-            type: "picture-marker",
-            url: "img/team/pleague.png",
-            width: "50px",
-            height: "50px"
-          }
-        },
-      ]
+      // uniqueValueInfos: [
+      //   {
+      //     value: "T1 聯盟",
+      //     symbol: {
+      //       type: "picture-marker",
+      //       url: "img/team/t1league.svg",
+      //       width: "50px",
+      //       height: "50px"
+      //     }
+      //   },
+      //   {
+      //     value: "P. LEAGUE+",
+      //     symbol: {
+      //       type: "picture-marker",
+      //       url: "img/team/pleague.png",
+      //       width: "50px",
+      //       height: "50px"
+      //     }
+      //   },
+      // ]
     },
     // featureReduction: {
     //   type: "cluster"
@@ -131,27 +140,38 @@ require([
               type: "image",
               value: {
                 sourceURL: "{photo1}",
-                linkURL: "{photo1}",
+                linkURL: "{rentUrl}",
               },
             },
           ],
+          visible: "{photo1}" !== ""
         },
         {
           type: "fields",
           fieldInfos: [
-            { fieldName: "address", label: "地址", visible: "{address}" !== "" },
-            { fieldName: "team", label: "主場隊伍", visible: "{team}" !== "" },
-            { fieldName: "league", label: "所屬聯盟", visible: "{league}" !== "" },
-            { fieldName: "rentState", label: "是否對外開放", visible: "{rentState}" !== "" },
+            { fieldName: "type", label: "類型", visible: "{type}" !== "" },
+            { fieldName: "area", label: "地區", visible: "{area}" !== ""},
+            // { fieldName: "team", label: "備註", visible: "{team}" !== "", stringFieldOption: "rich-text" },
+            { fieldName: "league", label: "價格", visible: "{league}" !== "" },
+            { fieldName: "time", label: "營業時間", visible: "{time}" !== "" },
+            { fieldName: "reserve", label: "提前預約", visible: "{reserve}" !== "" },
+            // { fieldName: "rentState", label: "是否對外開放", visible: "{rentState}" !== "" },
             // { fieldName: "rentMemo", label: "租借規則", },
-            { fieldName: "rentUrl", label: "場館網站", visible: "{rentUrl}" !== "" },
-            { fieldName: "tel", label: "聯絡該場館", visible: "{tel}" !== "" },
+            { fieldName: "rentUrl", label: "網站", visible: "{rentUrl}" !== "", stringFieldOption: "rich-text" },
+            { fieldName: "address", label: "位置", visible: "{address}" !== "" },
+            // { fieldName: "tel", label: "聯絡該場館", visible: "{tel}" !== "" },
           ],
         },
-        // {
-        //   type: "text",
-        //   text: "<h2>租借規則</h2><br>" + "{rentMemo}"
-        // },
+        {
+          type: "text",
+          text: 
+          // <span class="tag">
+          // 🏷️ 標籤：<span>重要</span>
+          // </span><br/>
+          `
+          {team}
+          `
+        },
       ],
     },
   });
@@ -161,63 +181,123 @@ require([
   fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
     // fetch("http://localhost:3000/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
     method: "POST",
-    // credentials: 'include',
     headers: {
       authorization: "Bearer secret_o0cLkvqHibN73ywmEdkHaNMfbmiMd0HvYuSwn9UzrWH",
       "notion-version": "2022-06-28",
       "content-type": "application/json",
     },
-    // body: {
-    //   headers: {
-    //     Authorization: "Bearer secret_o0cLkvqHibN73ywmEdkHaNMfbmiMd0HvYuSwn9UzrWH",
-    //     "Notion-Version": "2022-06-28",
-    //     "Content-Type": "application/json",
-    //   }
-    // }
   })
     .then(response => response.json())
     .then(data => {
       let graphArr = [];
-      data.results.forEach(function (feature) {
-        var graphic = new Graphic({
-          geometry: {
-            type: "point",
-            longitude: feature.properties.Longitude.rich_text.length > 0 ? feature.properties.Longitude.rich_text[0].text.content : 0,
-            latitude: feature.properties.Latitude.rich_text.length > 0 ? feature.properties.Latitude.rich_text[0].text.content : 0
-          },
-          attributes: {
-            "name": feature.properties["名稱"].title[0]?.text.content,
-            "address": feature.properties["位置"].rich_text[0]?.text.content,
-            "team": feature.properties["備註"].rich_text[0]?.text.content,
-            "league": feature.properties["價格"].rich_text[0]?.text.content,
-            // "rentState": feature.properties["地區"].rich_text[0].text.content,
-            // "tel": feature.properties["提前預約"].rich_text[0].text.content,
-            "photo1": feature.properties["營業時間"].rich_text[0]?.text.content,
-            // "rentMemo": feature.properties["類型"].rich_text[0].text.content,
-            "rentUrl": feature.properties["網站"].url
-          },
-          // 位置.rich_text[0].text.content
-        });
-        graphArr.push(graphic);
-      });
+      data.results.forEach(async function (feature) {
+        let gAttributes = {
+          "name": feature.properties["名稱"].title[0]?.text.content,
+          "address": feature.properties["位置"].rich_text[0]?.text.content,
+          "team": feature.properties["備註"].rich_text?.map(text => {
+            if (isURL(text.text.content)) {
+              return `<a target="_blank" href="${text.text.content}" rel="noreferrer">${text.text.content}</a>`;
+            } else {
+              return text.text.content;
+            }
+          }).join("<br>"),
+          "league": feature.properties["價格"].rich_text?.map(text => text.text.content).join("<br>"),
+          // "rentState": feature.properties["地區"].rich_text[0].text.content,
+          // "tel": feature.properties["提前預約"].rich_text[0].text.content,
+          "time": feature.properties["營業時間"].rich_text?.map(text => text.text.content).join("<br>"),
+          "color": feature.properties["類型"].select.color,
+          "type": feature.properties["類型"].select.name,
+          "area": feature.properties["地區"].multi_select?.map(text => text.name).join(", "),
+          "reserve": feature.properties["提前預約"].multi_select?.map(text => text.name).join(", "),
+          // "rentMemo": feature.properties["類型"].rich_text[0].text.content,
+          "rentUrl": feature.properties["網站"].url,
+          "photo1": feature.properties["照片"].url
+        }
 
+        // if coordinates not define, update it from address lebel
+        if ((feature.properties.Latitude.rich_text.length == 0 ||
+          feature.properties.Longitude.rich_text.length == 0) &&
+          feature.properties["位置"].rich_text[0]?.text.content) {
+          let temp = await fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy?url=https://positionstack.com/geo_api.php?query=" + feature.properties["位置"].rich_text[0]?.text.content, {
+            method: "POST",
+          })
+          let coordinateData = (await temp.json()).data
+          // fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy/notion/database/update", {
+          //   method: "POST",
+          //   data:{
+          //     "properties": {
+
+          //     }
+          //   },
+          // }).then(response => response.json())
+          //   .then(data => {
+          //     if (data.length > 1) {
+          //       graphArr.push(data[0].latitude);
+          //       graphArr.push(data[0].longitude);
+          //     }
+
+          //   })
+          var graphic = new Graphic({
+            geometry: {
+              type: "point",
+              latitude: coordinateData.length > 0 ? coordinateData[0].latitude : 0,
+              longitude: coordinateData.length > 0 ? coordinateData[0].longitude : 0
+            },
+            attributes: gAttributes
+            // 位置.rich_text[0].text.content
+          });
+          featureLayer.applyEdits({
+            addFeatures: [graphic]
+          })
+        }
+        else {
+          var graphic = new Graphic({
+            geometry: {
+              type: "point",
+              latitude: feature.properties.Latitude.rich_text.length > 0 ?
+                feature.properties.Latitude.rich_text[0].text.content : 0,
+              longitude: feature.properties.Longitude.rich_text.length > 0 ?
+                feature.properties.Longitude.rich_text[0].text.content : 0
+            },
+            attributes: gAttributes,
+            // 位置.rich_text[0].text.content
+          });
+          graphArr.push(graphic);
+        }
+
+        if (feature.properties["類型"]?.select?.color) {
+          featureLayer.renderer.addUniqueValueInfo({
+            value: feature.properties["類型"]?.select?.color,
+            symbol: {
+              type: "simple-marker",
+              style: "circle",
+              color: feature.properties["類型"]?.select?.color,
+              outline: {
+                color: "#65D0FE",
+                width: "1px"
+              },
+              size: "16px"
+            }
+          })
+        }
+      });
       featureLayer.applyEdits({
         addFeatures: graphArr
       });
     });
 
-  // // 創建一個 Search widget
+  // 創建一個 Search widget
   const searchWidget = new Search({
     view: view,
-    allPlaceholder: "搜尋籃球場名稱",
+    allPlaceholder: "搜尋名稱",
     includeDefaultSources: false,
     sources: [{
       layer: featureLayer,
-      placeholder: "搜尋籃球場名稱",
+      placeholder: "搜尋名稱",
       maxResults: 5,
       searchFields: ["name"],
       displayField: "name",
-      name: "搜尋籃球場名稱",
+      name: "搜尋名稱",
       // filter: searchExtent
     }],
     locationEnabled: false
@@ -248,29 +328,35 @@ require([
     });
   });
 
-  // 定位使用者位置
-  view.ui.add(new Locate({
-    view: view,   // Attaches the Locate button to the view
-    graphic: new Graphic({
-      // symbol: { type: "simple-marker" }  
-      symbol: {
-        type: "simple-marker",
-        style: "circle",
-        color: [36, 153, 222, 0.7],
-        size: "30px",
-        outline: {
-          color: "#BAD8E4",
-          width: "20px"
-        }
-      }
-      // graphic placed at the location of the user when found
-    }),
-    goToOverride: function (view, goToParams) {
-      goToParams.options.duration = 2000;
-      return view.goTo(goToParams.target, goToParams.options);
-    }
-  }), { position: "top-left", index: 1 });
+  // // 定位使用者位置
+  // view.ui.add(new Locate({
+  //   view: view,   // Attaches the Locate button to the view
+  //   graphic: new Graphic({
+  //     // symbol: { type: "simple-marker" }  
+  //     symbol: {
+  //       type: "simple-marker",
+  //       style: "circle",
+  //       color: [36, 153, 222, 0.7],
+  //       size: "30px",
+  //       outline: {
+  //         color: "#BAD8E4",
+  //         width: "20px"
+  //       }
+  //     }
+  //     // graphic placed at the location of the user when found
+  //   }),
+  //   goToOverride: function (view, goToParams) {
+  //     goToParams.options.duration = 2000;
+  //     return view.goTo(goToParams.target, goToParams.options);
+  //   }
+  // }), { position: "top-left", index: 1 });
 
 });
+
+function isURL(str) {
+  // 簡單的 URL 正則表達式，可以擴展以滿足更多情況
+  const pattern = /^(?:https?:\/\/)?(?:www\.)?([\w-]+\.[\w-]+)/;
+  return pattern.test(str);
+}
 
 export { view, map };
