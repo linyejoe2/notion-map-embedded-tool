@@ -47,14 +47,21 @@ require([
   }), "bottom-left");
 
   // 建立回初始畫面工具
-  view.ui.add(new Home({
+  const homeWidget = new Home({
     view: view,
     // 讓回初始畫面的動畫更司滑
     goToOverride: function (view, goToParams) {
       goToParams.options.duration = 1000;
       return view.goTo(goToParams.target, goToParams.options);
     }
-  }), "top-left");
+  })
+  view.ui.add(homeWidget, "top-left");
+  homeWidget.on("go", function () {
+    if (view.popup.visible) {
+      view.popup.close();
+    }
+  });
+
 
   // 建立 featureLayer 
   const featureLayer = new FeatureLayer({
@@ -281,53 +288,53 @@ require([
   }), { position: "top-left", index: 1 });
 
 
-function isURL(str) {
-  // 簡單的 URL 正則表達式，可以擴展以滿足更多情況
-  const pattern = /^(?:https?:\/\/)?(?:www\.)?([\w-]+\.[\w-]+)/;
-  return pattern.test(str);
-}
+  function isURL(str) {
+    // 簡單的 URL 正則表達式，可以擴展以滿足更多情況
+    const pattern = /^(?:https?:\/\/)?(?:www\.)?([\w-]+\.[\w-]+)/;
+    return pattern.test(str);
+  }
 
-function createUniqueIcon(data) {
-  let uniqueValueInfos = []
-  data.results.forEach(function (feature) {
-    const colorArr = []
-    if (feature.properties["類型"]?.select?.color
-      && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
-    ) {
-      uniqueValueInfos.push({
-        value: feature.properties["類型"]?.select?.color,
-        symbol: {
-          type: "simple-marker",
-          style: "circle",
-          color: feature.properties["類型"]?.select?.color,
-          outline: {
-            color: "#65D0FE",
-            width: "1px"
-          },
-          size: "16px"
-        }
-      })
-      colorArr.push(feature.properties["類型"]?.select?.color)
-    }
-  })
-  var renderer = new UniqueValueRenderer({
-    type: "unique-value",
-    field: "color",
-    orderByClassesEnabled: true,
-    defaultSymbol: {
-      type: "simple-marker",
-      style: "circle",
-      color: "#32B3EB",
-      outline: {
-        color: "#65D0FE",
-        width: "1px"
+  function createUniqueIcon(data) {
+    let uniqueValueInfos = []
+    data.results.forEach(function (feature) {
+      const colorArr = []
+      if (feature.properties["類型"]?.select?.color
+        && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
+      ) {
+        uniqueValueInfos.push({
+          value: feature.properties["類型"]?.select?.color,
+          symbol: {
+            type: "simple-marker",
+            style: "circle",
+            color: feature.properties["類型"]?.select?.color,
+            outline: {
+              color: "#65D0FE",
+              width: "1px"
+            },
+            size: "16px"
+          }
+        })
+        colorArr.push(feature.properties["類型"]?.select?.color)
+      }
+    })
+    var renderer = new UniqueValueRenderer({
+      type: "unique-value",
+      field: "color",
+      orderByClassesEnabled: true,
+      defaultSymbol: {
+        type: "simple-marker",
+        style: "circle",
+        color: "#32B3EB",
+        outline: {
+          color: "#65D0FE",
+          width: "1px"
+        },
+        size: "16px"
       },
-      size: "16px"
-    },
-    uniqueValueInfos: uniqueValueInfos
-  });
-  featureLayer.renderer = renderer;
-}
+      uniqueValueInfos: uniqueValueInfos
+    });
+    featureLayer.renderer = renderer;
+  }
 
 });
 
