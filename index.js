@@ -27,8 +27,6 @@ require([
     container: "viewDiv",
     map: map,
     center: [139.77521, 35.68788],
-    // center: [139.7452043, 35.6870601],
-    // 35.68788740765644, 139.77521531613738
     zoom: 12,
     popup: {
       dockEnabled: true,
@@ -37,10 +35,6 @@ require([
       dockOptions: {
         buttonEnabled: false,
         breakpoint: false,
-        // breakpoint: {
-        //   width: 600,
-        //   height: 400
-        // }
       }
     }
   });
@@ -62,19 +56,16 @@ require([
     }
   }), "top-left");
 
-  // 建立 featureLayer 來顯示籃球場點位
+  // 建立 featureLayer 
   const featureLayer = new FeatureLayer({
     id: "bBallLayer",
     fields: [{ name: "ObjectID", alias: "ObjectID", type: "oid" },
     { name: "name", alias: "名稱", type: "string" },
     { name: "address", alias: "位置", type: "string" },
     { name: "team", alias: "備註", type: "string" },
-    { name: "league", alias: "價格", type: "string" },
-    // { name: "rentState", alias: "是否對外開放", type: "string" },
-    // { name: "rentMemo", alias: "租借規則", type: "string" },
-    { name: "rentUrl", alias: "網站", type: "string" },
+    { name: "price", alias: "價格", type: "string" },
+    { name: "webSite", alias: "網站", type: "string" },
     { name: "color", alias: "標誌顏色", type: "string" },
-    // { name: "tel", alias: "聯絡該場館", type: "string" },
     { name: "time", alias: "營業時間", type: "string" },
     { name: "photo1", alias: "照片", type: "string" },
     { name: "type", alias: "類型", type: "string" },
@@ -92,44 +83,16 @@ require([
       field: "color",
       orderByClassesEnabled: true,
       defaultSymbol: {
-        // type: "picture-marker",
-        // url: "img/basketball.png",
-        // width: "15px",
-        // height: "15px"
         type: "simple-marker",
         style: "circle",
         color: "#32B3EB",
-        // color: "red",
         outline: {
           color: "#65D0FE",
           width: "1px"
         },
         size: "16px"
-      },
-      // uniqueValueInfos: [
-      //   {
-      //     value: "T1 聯盟",
-      //     symbol: {
-      //       type: "picture-marker",
-      //       url: "img/team/t1league.svg",
-      //       width: "50px",
-      //       height: "50px"
-      //     }
-      //   },
-      //   {
-      //     value: "P. LEAGUE+",
-      //     symbol: {
-      //       type: "picture-marker",
-      //       url: "img/team/pleague.png",
-      //       width: "50px",
-      //       height: "50px"
-      //     }
-      //   },
-      // ]
+      }
     },
-    // featureReduction: {
-    //   type: "cluster"
-    // },
     popupTemplate: {
       title: "{name}",
       collapseEnablejd: false,
@@ -141,7 +104,7 @@ require([
               type: "image",
               value: {
                 sourceURL: "{photo1}",
-                linkURL: "{rentUrl}",
+                linkURL: "{webSite}",
               },
             },
           ],
@@ -152,15 +115,11 @@ require([
           fieldInfos: [
             { fieldName: "type", label: "類型", visible: "{type}" !== "" },
             { fieldName: "area", label: "地區", visible: "{area}" !== "" },
-            // { fieldName: "team", label: "備註", visible: "{team}" !== "", stringFieldOption: "rich-text" },
-            { fieldName: "league", label: "價格", visible: "{league}" !== "" },
+            { fieldName: "price", label: "價格", visible: "{price}" !== "" },
             { fieldName: "time", label: "營業時間", visible: "{time}" !== "" },
             { fieldName: "reserve", label: "提前預約", visible: "{reserve}" !== "" },
-            // { fieldName: "rentState", label: "是否對外開放", visible: "{rentState}" !== "" },
-            // { fieldName: "rentMemo", label: "租借規則", },
-            { fieldName: "rentUrl", label: "網站", visible: "{rentUrl}" !== "", stringFieldOption: "rich-text" },
+            { fieldName: "webSite", label: "網站", visible: "{webSite}" !== "", stringFieldOption: "rich-text" },
             { fieldName: "address", label: "位置", visible: "{address}" !== "" },
-            // { fieldName: "tel", label: "聯絡該場館", visible: "{tel}" !== "" },
           ],
         },
         {
@@ -191,11 +150,10 @@ require([
   })
     .then(response => response.json())
     .then(data => {
-      let graphArr = [];
       let colorArr = [];
       data.results.forEach(async function (feature) {
         let gAttributes = {
-          "name": feature.properties["名稱"].title[0]?.text.content,
+          "name": feature.properties["名稱"].title?.map(text => text.text.content).join(" "),
           "address": feature.properties["位置"].rich_text[0]?.text.content,
           "team": feature.properties["備註"].rich_text?.map(text => {
             if (isURL(text.text.content)) {
@@ -204,7 +162,7 @@ require([
               return text.text.content;
             }
           }).join("<br>"),
-          "league": feature.properties["價格"].rich_text?.map(text => text.text.content).join("<br>"),
+          "price": feature.properties["價格"].rich_text?.map(text => text.text.content).join("<br>"),
           // "rentState": feature.properties["地區"].rich_text[0].text.content,
           // "tel": feature.properties["提前預約"].rich_text[0].text.content,
           "time": feature.properties["營業時間"].rich_text?.map(text => text.text.content).join("<br>"),
@@ -213,7 +171,7 @@ require([
           "area": feature.properties["地區"].multi_select?.map(text => text.name).join(", "),
           "reserve": feature.properties["提前預約"].multi_select?.map(text => text.name).join(", "),
           // "rentMemo": feature.properties["類型"].rich_text[0].text.content,
-          "rentUrl": feature.properties["網站"].url,
+          "webSite": feature.properties["網站"].url,
           "photo1": feature.properties["照片"].url
         }
 
@@ -232,7 +190,6 @@ require([
               longitude: coordinateData.length > 0 ? coordinateData[0].longitude : 0
             },
             attributes: gAttributes
-            // 位置.rich_text[0].text.content
           });
           featureLayer.applyEdits({
             addFeatures: [graphic]
@@ -248,77 +205,14 @@ require([
                 feature.properties.Longitude.rich_text[0].text.content : 0
             },
             attributes: gAttributes,
-            // 位置.rich_text[0].text.content
           });
-          graphArr.push(graphic);
-        }
-
-        if (feature.properties["類型"]?.select?.color 
-        && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
-        ) {
-          featureLayer.renderer.addUniqueValueInfo({
-            value: feature.properties["類型"]?.select?.color,
-            symbol: {
-              type: "simple-marker",
-              style: "circle",
-              color: feature.properties["類型"]?.select?.color,
-              outline: {
-                color: "#65D0FE",
-                width: "1px"
-              },
-              size: "16px"
-            }
-          })
-          colorArr.push(feature.properties["類型"]?.select?.color)
-          // featureLayer.refresh();
         }
         featureLayer.applyEdits({
           addFeatures: [graphic]
         });
       });
-      // featureLayer.applyEdits({
-      //   addFeatures: graphArr
-      // });
 
-      let uniqueValueInfos = []
-      data.results.forEach(function (feature) {
-        const colorArr = []
-        if (feature.properties["類型"]?.select?.color
-          && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
-        ) {
-          uniqueValueInfos.push({
-            value: feature.properties["類型"]?.select?.color,
-            symbol: {
-              type: "simple-marker",
-              style: "circle",
-              color: feature.properties["類型"]?.select?.color,
-              outline: {
-                color: "#65D0FE",
-                width: "1px"
-              },
-              size: "16px"
-            }
-          })
-          colorArr.push(feature.properties["類型"]?.select?.color)
-        }
-      })
-      var renderer = new UniqueValueRenderer({
-        type: "unique-value",
-        field: "color",
-        orderByClassesEnabled: true,
-        defaultSymbol: {
-          type: "simple-marker",
-          style: "circle",
-          color: "#32B3EB",
-          outline: {
-            color: "#65D0FE",
-            width: "1px"
-          },
-          size: "16px"
-        },
-        uniqueValueInfos: uniqueValueInfos
-      });
-      featureLayer.renderer = renderer;
+      createUniqueIcon(data);
     });
 
   // 創建一個 Search widget
@@ -363,39 +257,78 @@ require([
     });
   });
 
-  view.on("layerview-create", function (layer) {
-    console.log(layer)
-  })
+  // 定位使用者位置
+  view.ui.add(new Locate({
+    view: view,   // Attaches the Locate button to the view
+    graphic: new Graphic({
+      // symbol: { type: "simple-marker" }  
+      symbol: {
+        type: "simple-marker",
+        style: "circle",
+        color: [36, 153, 222, 0.7],
+        size: "30px",
+        outline: {
+          color: "#BAD8E4",
+          width: "20px"
+        }
+      }
+      // graphic placed at the location of the user when found
+    }),
+    goToOverride: function (view, goToParams) {
+      goToParams.options.duration = 2000;
+      return view.goTo(goToParams.target, goToParams.options);
+    }
+  }), { position: "top-left", index: 1 });
 
-  // // 定位使用者位置
-  // view.ui.add(new Locate({
-  //   view: view,   // Attaches the Locate button to the view
-  //   graphic: new Graphic({
-  //     // symbol: { type: "simple-marker" }  
-  //     symbol: {
-  //       type: "simple-marker",
-  //       style: "circle",
-  //       color: [36, 153, 222, 0.7],
-  //       size: "30px",
-  //       outline: {
-  //         color: "#BAD8E4",
-  //         width: "20px"
-  //       }
-  //     }
-  //     // graphic placed at the location of the user when found
-  //   }),
-  //   goToOverride: function (view, goToParams) {
-  //     goToParams.options.duration = 2000;
-  //     return view.goTo(goToParams.target, goToParams.options);
-  //   }
-  // }), { position: "top-left", index: 1 });
-
-});
 
 function isURL(str) {
   // 簡單的 URL 正則表達式，可以擴展以滿足更多情況
   const pattern = /^(?:https?:\/\/)?(?:www\.)?([\w-]+\.[\w-]+)/;
   return pattern.test(str);
 }
+
+function createUniqueIcon(data) {
+  let uniqueValueInfos = []
+  data.results.forEach(function (feature) {
+    const colorArr = []
+    if (feature.properties["類型"]?.select?.color
+      && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
+    ) {
+      uniqueValueInfos.push({
+        value: feature.properties["類型"]?.select?.color,
+        symbol: {
+          type: "simple-marker",
+          style: "circle",
+          color: feature.properties["類型"]?.select?.color,
+          outline: {
+            color: "#65D0FE",
+            width: "1px"
+          },
+          size: "16px"
+        }
+      })
+      colorArr.push(feature.properties["類型"]?.select?.color)
+    }
+  })
+  var renderer = new UniqueValueRenderer({
+    type: "unique-value",
+    field: "color",
+    orderByClassesEnabled: true,
+    defaultSymbol: {
+      type: "simple-marker",
+      style: "circle",
+      color: "#32B3EB",
+      outline: {
+        color: "#65D0FE",
+        width: "1px"
+      },
+      size: "16px"
+    },
+    uniqueValueInfos: uniqueValueInfos
+  });
+  featureLayer.renderer = renderer;
+}
+
+});
 
 export { view, map };
