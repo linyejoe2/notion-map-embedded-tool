@@ -11,8 +11,9 @@ require([
   "esri/widgets/Home",
   "esri/widgets/Locate",
   "esri/widgets/LayerList",
-  "esri/widgets/Search"
-], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, BasemapToggle, Popup, Home, Locate, LayerList, Search) {
+  "esri/widgets/Search",
+  "esri/renderers/UniqueValueRenderer"
+], function (Map, MapView, Graphic, GraphicsLayer, FeatureLayer, BasemapToggle, Popup, Home, Locate, LayerList, Search, UniqueValueRenderer) {
 
   // 建立地圖
   map = new Map({
@@ -150,7 +151,7 @@ require([
           type: "fields",
           fieldInfos: [
             { fieldName: "type", label: "類型", visible: "{type}" !== "" },
-            { fieldName: "area", label: "地區", visible: "{area}" !== ""},
+            { fieldName: "area", label: "地區", visible: "{area}" !== "" },
             // { fieldName: "team", label: "備註", visible: "{team}" !== "", stringFieldOption: "rich-text" },
             { fieldName: "league", label: "價格", visible: "{league}" !== "" },
             { fieldName: "time", label: "營業時間", visible: "{time}" !== "" },
@@ -164,11 +165,11 @@ require([
         },
         {
           type: "text",
-          text: 
-          // <span class="tag">
-          // 🏷️ 標籤：<span>重要</span>
-          // </span><br/>
-          `
+          text:
+            // <span class="tag">
+            // 🏷️ 標籤：<span>重要</span>
+            // </span><br/>
+            `
           {team}
           `
         },
@@ -178,18 +179,20 @@ require([
   map.add(featureLayer);
 
   // 呼叫 api 取得籃球場資料，並將資料轉成 Graphics 顯示在地圖上
-  fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
+  fetch("https://api.linyejoe2.site/proxy2?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
     // fetch("http://localhost:3000/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
     method: "POST",
     headers: {
       authorization: "Bearer secret_o0cLkvqHibN73ywmEdkHaNMfbmiMd0HvYuSwn9UzrWH",
       "notion-version": "2022-06-28",
-      "content-type": "application/json",
+      "content-type": "application/json"
     },
+    credentials: 'include'
   })
     .then(response => response.json())
     .then(data => {
       let graphArr = [];
+      let colorArr = [];
       data.results.forEach(async function (feature) {
         let gAttributes = {
           "name": feature.properties["名稱"].title[0]?.text.content,
@@ -222,21 +225,6 @@ require([
             method: "POST",
           })
           let coordinateData = (await temp.json()).data
-          // fetch("https://8jjh8a2jl8.execute-api.ap-northeast-2.amazonaws.com/proxy/notion/database/update", {
-          //   method: "POST",
-          //   data:{
-          //     "properties": {
-
-          //     }
-          //   },
-          // }).then(response => response.json())
-          //   .then(data => {
-          //     if (data.length > 1) {
-          //       graphArr.push(data[0].latitude);
-          //       graphArr.push(data[0].longitude);
-          //     }
-
-          //   })
           var graphic = new Graphic({
             geometry: {
               type: "point",
@@ -265,7 +253,9 @@ require([
           graphArr.push(graphic);
         }
 
-        if (feature.properties["類型"]?.select?.color) {
+        if (feature.properties["類型"]?.select?.color 
+        && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
+        ) {
           featureLayer.renderer.addUniqueValueInfo({
             value: feature.properties["類型"]?.select?.color,
             symbol: {
@@ -279,11 +269,56 @@ require([
               size: "16px"
             }
           })
+          colorArr.push(feature.properties["類型"]?.select?.color)
+          // featureLayer.refresh();
         }
+        featureLayer.applyEdits({
+          addFeatures: [graphic]
+        });
       });
-      featureLayer.applyEdits({
-        addFeatures: graphArr
+      // featureLayer.applyEdits({
+      //   addFeatures: graphArr
+      // });
+
+      let uniqueValueInfos = []
+      data.results.forEach(function (feature) {
+        const colorArr = []
+        if (feature.properties["類型"]?.select?.color
+          && colorArr.indexOf(feature.properties["類型"]?.select?.color) == -1
+        ) {
+          uniqueValueInfos.push({
+            value: feature.properties["類型"]?.select?.color,
+            symbol: {
+              type: "simple-marker",
+              style: "circle",
+              color: feature.properties["類型"]?.select?.color,
+              outline: {
+                color: "#65D0FE",
+                width: "1px"
+              },
+              size: "16px"
+            }
+          })
+          colorArr.push(feature.properties["類型"]?.select?.color)
+        }
+      })
+      var renderer = new UniqueValueRenderer({
+        type: "unique-value",
+        field: "color",
+        orderByClassesEnabled: true,
+        defaultSymbol: {
+          type: "simple-marker",
+          style: "circle",
+          color: "#32B3EB",
+          outline: {
+            color: "#65D0FE",
+            width: "1px"
+          },
+          size: "16px"
+        },
+        uniqueValueInfos: uniqueValueInfos
       });
+      featureLayer.renderer = renderer;
     });
 
   // 創建一個 Search widget
@@ -315,7 +350,7 @@ require([
     }, { duration: 2000 });
   })
 
-  // 監聽點擊事件，彈出 Popup 顯示籃球場資訊
+  // 監聽點擊事件，彈出 Popup 顯示資訊
   view.on("click", function (event) {
     view.hitTest(event).then(function (response) {
       var graphic = response.results[0].graphic;
@@ -327,6 +362,10 @@ require([
       }
     });
   });
+
+  view.on("layerview-create", function (layer) {
+    console.log(layer)
+  })
 
   // // 定位使用者位置
   // view.ui.add(new Locate({
