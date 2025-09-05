@@ -144,8 +144,12 @@ require([
   });
   map.add(featureLayer);
 
+  // 取得 URL 參數中的資料庫 ID
+  const urlParams = new URLSearchParams(window.location.search);
+  const dbId = urlParams.get('db') || '6d069d2e6b9a4c5aab18fc6d1af366fa';
+
   // 呼叫 api 取得籃球場資料，並將資料轉成 Graphics 顯示在地圖上
-  fetch("https://api.linyejoe2.site/proxy2?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
+  fetch(`https://api.linyejoe2.site/proxy2?url=https://api.notion.com/v1/databases/${dbId}/query`, {
     // fetch("http://localhost:3000/proxy?url=https://api.notion.com/v1/databases/6d069d2e6b9a4c5aab18fc6d1af366fa/query", {
     method: "POST",
     headers: {
