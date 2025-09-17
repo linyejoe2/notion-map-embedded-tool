@@ -189,7 +189,7 @@ require([
           "photo1": feature.properties["照片"].url
         }
 
-        console.log(`gAttr: ${gAttributes}`)
+        console.log(`gAttr: ${JSON.stringify(gAttributes)}`)
 
         // if coordinates not define, update it from address lebel
         if ((feature.properties.Latitude.rich_text.length == 0 ||
