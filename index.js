@@ -22,11 +22,13 @@ require([
     // basemap: "oceans", // 土地是白的，方便看清楚其他資訊
   });
 
+  const center = urlParams.get('center').split(",") || [139.77521, 35.68788];
+
   // 建立地圖視圖
   view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [139.77521, 35.68788],
+    center: center,
     zoom: 12,
     popup: {
       dockEnabled: true,
