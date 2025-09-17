@@ -23,7 +23,7 @@ require([
   });
 
   const urlParams = new URLSearchParams(window.location.search);
-  const center = urlParams.get('center').split(",") || [139.77521, 35.68788];
+  const center = urlParams.get('center') ? urlParams.get('center').split(",") : [139.77521, 35.68788];
 
   // 建立地圖視圖
   view = new MapView({
@@ -188,6 +188,8 @@ require([
           "webSite": feature.properties["網站"].url,
           "photo1": feature.properties["照片"].url
         }
+
+        console.log(`gAttr: ${gAttributes}`)
 
         // if coordinates not define, update it from address lebel
         if ((feature.properties.Latitude.rich_text.length == 0 ||
