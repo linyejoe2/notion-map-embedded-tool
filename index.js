@@ -22,6 +22,7 @@ require([
     // basemap: "oceans", // 土地是白的，方便看清楚其他資訊
   });
 
+  const urlParams = new URLSearchParams(window.location.search);
   const center = urlParams.get('center').split(",") || [139.77521, 35.68788];
 
   // 建立地圖視圖
@@ -147,7 +148,6 @@ require([
   map.add(featureLayer);
 
   // 取得 URL 參數中的資料庫 ID
-  const urlParams = new URLSearchParams(window.location.search);
   const dbId = urlParams.get('db') || '6d069d2e6b9a4c5aab18fc6d1af366fa';
 
   // 呼叫 api 取得籃球場資料，並將資料轉成 Graphics 顯示在地圖上
