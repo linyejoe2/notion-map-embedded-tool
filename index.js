@@ -163,6 +163,7 @@ require([
   })
     .then(response => response.json())
     .then(data => {
+      try {
       let colorArr = [];
       data.results.forEach(async function (feature) {
         let gAttributes = {
@@ -226,6 +227,10 @@ require([
       });
 
       createUniqueIcon(data);
+        
+      } catch (error) {
+        console.log(`error: ${error}`)
+      }
     });
 
   // 創建一個 Search widget
